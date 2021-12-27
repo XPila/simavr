@@ -35,10 +35,14 @@
 
 #include "sim_core_decl.h"
 
-//#include "uart_pty.h"
-//uart_pty_t uart_pty;
 #include "uart_tcp.h"
 uart_tcp_t uart_tcp;
+
+#include "mmctl_shr16.h"
+mmctl_shr16_t mmctl_shr16;
+
+#include "mmctl_leds.h"
+mmctl_leds_t mmctl_leds;
 
 
 static void
@@ -286,13 +290,16 @@ main(
 		avr_gdb_init(avr);
 	}
 
-//	uart_pty_init(avr, &uart_pty);
-//	uart_pty_connect(&uart_pty, '0');
-
 	network_init();
 
 	uart_tcp_init(avr, &uart_tcp);
 	uart_tcp_connect(&uart_tcp, '1');
+
+	mmctl_shr16_init(avr, &mmctl_shr16);
+	mmctl_shr16_connect(&mmctl_shr16);
+
+	mmctl_leds_init(avr, &mmctl_leds);
+	mmctl_leds_connect(&mmctl_leds, &mmctl_shr16);
 
 	signal(SIGINT, sig_int);
 	signal(SIGTERM, sig_int);

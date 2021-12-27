@@ -50,7 +50,7 @@ SIMSRC := $(subst ../simavr/sim/run_avr.c,,$(SIMSRC))
 # append uart_pty.c
 #SIMSRC := $(SIMSRC) ../examples/parts/uart_pty.c
 # append main.c
-ALLSRC := $(SIMSRC) main.c uart_tcp.c
+ALLSRC := $(SIMSRC) main.c uart_tcp.c mmctl_shr16.c mmctl_leds.c
 # filter all *.c files
 GCCSRC := $(filter %.c, $(ALLSRC))
 # filter all *.cpp files
