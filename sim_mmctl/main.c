@@ -24,6 +24,8 @@
 #include <libgen.h>
 #include <string.h>
 #include <signal.h>
+
+
 #include "sim_avr.h"
 #include "sim_elf.h"
 #include "sim_core.h"
@@ -33,8 +35,10 @@
 
 #include "sim_core_decl.h"
 
-#include "uart_pty.h"
-uart_pty_t uart_pty;
+//#include "uart_pty.h"
+//uart_pty_t uart_pty;
+#include "uart_tcp.h"
+uart_tcp_t uart_tcp;
 
 
 static void
@@ -83,6 +87,7 @@ sig_int(
 	printf("signal caught, simavr terminating\n");
 	if (avr)
 		avr_terminate(avr);
+	network_release();
 	exit(0);
 }
 
@@ -284,19 +289,28 @@ main(
 //	uart_pty_init(avr, &uart_pty);
 //	uart_pty_connect(&uart_pty, '0');
 
+	network_init();
+
+	uart_tcp_init(avr, &uart_tcp);
+	uart_tcp_connect(&uart_tcp, '1');
+
 	signal(SIGINT, sig_int);
 	signal(SIGTERM, sig_int);
 
 	printf("started\n");
 
-
+	uint64_t old_cycles = 0;
 	for (;;) {
-		if ((avr->cycle % 10000) == 0)
+/*		if (avr->cycle >= (old_cycles + 10000))
+		{
+			old_cycles = avr->cycle;
 			printf("%d\n", avr->cycle);
+		}*/
 		int state = avr_run(avr);
 		if (state == cpu_Done || state == cpu_Crashed)
 			break;
 	}
 
 	avr_terminate(avr);
+	network_release();
 }

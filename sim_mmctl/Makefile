@@ -27,6 +27,8 @@ SHELL_MKDIR ?= $(if $(SHELL_IS_UNIX),mkdir -p,MKDIR)
 SHELL_RM ?= $(if $(SHELL_IS_UNIX),rm,DEL /Q)
 # shell command for renaming files/dirs
 SHELL_MV ?= $(if $(SHELL_IS_UNIX),mv,REN)
+# shell command for copying files
+SHELL_CP ?= $(if $(SHELL_IS_UNIX),cp,COPY)
 # shell command 'cat'
 SHELL_CAT ?= $(if $(SHELL_IS_UNIX),cat,TYPE)
 # shell command separator
@@ -34,8 +36,7 @@ SHELL_CMDSEP ?= $(if $(SHELL_IS_UNIX), ; , & )
 
 INCLUDES := -I../simavr -I../simavr/cores -I../simavr/sim -I../examples/parts
 
-GCCFLAGS := $(INCLUDES)
-# -Dstrsep=strtok
+GCCFLAGS := $(INCLUDES) -Dstrsep=strtok
 LDFLAGS := -lelf -lm -lws2_32
 
 # simavr source files (all *.c from folders 'sim' and 'cores')
@@ -47,9 +48,9 @@ SIMSRC := $(SIMSRC_SIM) $(SIMSRC_CORES)
 # exclude run_avr.c (original main)
 SIMSRC := $(subst ../simavr/sim/run_avr.c,,$(SIMSRC))
 # append uart_pty.c
-SIMSRC := $(SIMSRC) ../examples/parts/uart_pty.c
+#SIMSRC := $(SIMSRC) ../examples/parts/uart_pty.c
 # append main.c
-ALLSRC := $(SIMSRC) main.c
+ALLSRC := $(SIMSRC) main.c uart_tcp.c
 # filter all *.c files
 GCCSRC := $(filter %.c, $(ALLSRC))
 # filter all *.cpp files
@@ -120,3 +121,9 @@ printvars:
 	@echo SHELL_MV=$(SHELL_MV)
 	@echo SHELL_CAT=$(SHELL_CAT)
 	@echo SHELL_CMDSEP=$(SHELL_CMDSEP)
+
+MYS2_DLL_PATH := bin/msys2/
+copy_msys_dlls:
+	$(SHELL_CP) $(MYS2_DLL_PATH)msys-2.0.dll $(OUT)
+	$(SHELL_CP) $(MYS2_DLL_PATH)msys-elf-0.dll $(OUT)
+	$(SHELL_CP) $(MYS2_DLL_PATH)msys-gcc_s-seh-1.dll $(OUT)
